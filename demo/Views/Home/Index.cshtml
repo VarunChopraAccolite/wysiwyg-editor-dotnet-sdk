@@ -91,178 +91,166 @@
         </form>
     </div>
 
-    <script>
-    $(function() {
-        $('#edit').froalaEditor({
-            imageUploadURL: '/FroalaApi/UploadImage',
-            fileUploadURL: '/FroalaApi/UploadFile',
-            imageManagerLoadURL: '/FroalaApi/LoadImages',
-            imageManagerDeleteURL: "/FroalaApi/DeleteImage",
-            imageManagerDeleteMethod: "POST",
-            // Introduce the Video Upload Buttons
-            videoInsertButtons: ['videoBack', '|', 'videoByURL', 'videoEmbed', 'videoUpload'],
-            // Set the video upload URL.
-            videoUploadURL: '/FroalaApi/UploadVideo',
-            // Set request type.
-            videoUploadMethod: 'POST'
-        })
-        // Catch image removal from the editor.
-        .on('froalaEditor.image.removed', function (e, editor, $img) {
-            $.ajax({
-                // Request method.
-                method: "POST",
+<script>
+    (function() {
+        const editInstance = new FroalaEditor('#edit',
+            {
+                imageUploadURL: '/FroalaApi/UploadImage',
+                fileUploadURL: '/FroalaApi/UploadFile',
+                imageManagerLoadURL: '/FroalaApi/LoadImages',
+                imageManagerDeleteURL: "/FroalaApi/DeleteImage",
+                imageManagerDeleteMethod: "POST",
+                // Introduce the Video Upload Buttons
+                videoInsertButtons: ['videoBack', '|', 'videoByURL', 'videoEmbed', 'videoUpload'],
+                // Set the video upload URL.
+                videoUploadURL: '/FroalaApi/UploadVideo',
+                // Set request type.
+                videoUploadMethod: 'POST',
+                events: {
+                    // Catch image removal from the editor.
+                    'froalaEditor.image.removed': function (e, editor, $img) {
 
-                // Request URL.
-                url: "/FroalaApi/DeleteImage",
+                        var httpRequest = new XMLHttpRequest();
+                        httpRequest.open('POST', "/FroalaApi/DeleteImage", true);
+                        httpRequest.onload = function() {
+                            if (httpRequest.status >= 200 && httpRequest.status < 400) {
+                                // Success!
+                                console.log('image was deleted');
+                            } else {
+                                // We reached our target server, but it returned an error
+                                console.log('image delete problem from target server : ' + httpRequest.status);
+                            }
+                        };
+                        httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+                        httpRequest.send({ src: $img.attr('src') });
+                    },
+                    // Catch image removal from the editor.
+                    'froalaEditor.file.unlink': function (e, editor, link) {
 
-                // Request params.
-                data: {
-                src: $img.attr('src')
+                        var httpRequest = new XMLHttpRequest();
+                        httpRequest.open('POST', "/FroalaApi/DeleteImage", true);
+                        httpRequest.onload = function () {
+                            if (httpRequest.status >= 200 && httpRequest.status < 400) {
+                                // Success!
+                                console.log('image was deleted');
+                            } else {
+                                // We reached our target server, but it returned an error
+                                console.log('image delete problem from target server : ' + httpRequest.status);
+                            }
+                        };
+
+                        httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+                        httpRequest.send({ src: link.getAttribute('href') });
+                    }
                 }
-            })
-            .done (function (data) {
-                console.log ('image was deleted');
-            })
-            .fail (function (err) {
-                console.log ('image delete problem: ' + JSON.stringify(err));
-            })
-        })
-        // Catch image removal from the editor.
-        .on('froalaEditor.file.unlink', function (e, editor, link) {
-            $.ajax({
-                // Request method.
-                method: "POST",
+            });
+        const editResizeInstance = new FroalaEditor('#edit-resize',
+            {
+                imageUploadURL: '/FroalaApi/UploadImageResize',
+                fileUploadURL: '/FroalaApi/UploadFile',
+                imageManagerLoadURL: '/FroalaApi/LoadImages',
+                imageManagerDeleteURL: "/FroalaApi/DeleteImage",
+                imageManagerDeleteMethod: "POST",
+                events: {
+                    // Catch image removal from the editor.
+                    'froalaEditor.image.removed': function (e, editor, $img) {
+                        var httpRequest = new XMLHttpRequest();
+                        httpRequest.open('POST', "/FroalaApi/DeleteImage", true);
+                        httpRequest.onload = function () {
+                            if (httpRequest.status >= 200 && httpRequest.status < 400) {
+                                // Success!
+                                console.log('image was deleted');
+                            } else {
+                                // We reached our target server, but it returned an error
+                                console.log('image delete problem from target server : ' + httpRequest.status);
+                            }
+                        };
 
-                // Request URL.
-                url: "/FroalaApi/DeleteFile",
-
-                // Request params.
-                data: {
-                src: link.getAttribute('href')
+                        httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+                        httpRequest.send({ src: $img.attr('src') });
+                    },
+                    // Catch image removal from the editor.
+                    'froalaEditor.file.unlink': function (e, editor, link) {
+                        var httpRequest = new XMLHttpRequest();
+                        httpRequest.open('POST', "/FroalaApi/DeleteImage", true);
+                        httpRequest.onload = function () {
+                            if (httpRequest.status >= 200 && httpRequest.status < 400) {
+                                // Success!
+                                console.log('image was deleted');
+                            } else {
+                                // We reached our target server, but it returned an error
+                                console.log('image delete problem from target server : ' + httpRequest.status);
+                            }
+                        };
+                        httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+                        httpRequest.send({ src: link.getAttribute('href') });
+                    }
                 }
-            })
-            .done (function (data) {
-                console.log ('file was deleted');
-            })
-            .fail (function (err) {
-                console.log ('file delete problem: ' + JSON.stringify(err));
-            })
-        })
+            });
+        const editValidationInstance = new FroalaEditor('#edit-validation',
+            {
+                imageUploadURL: '/FroalaApi/UploadImageValidation',
+                imageUploadParam: 'myImage',
+                fileUploadURL: '/FroalaApi/UploadFileValidation',
+                fileUploadParam: 'myFile',
+                fileMaxSize: 1024 * 1024 * 50,
+                imageManagerLoadURL: '/FroalaApi/LoadImages',
+                imageManagerDeleteURL: "/FroalaApi/DeleteImage",
+                imageManagerDeleteMethod: "POST",
+                events: {
+                    // Catch image removal from the editor.
+                    'froalaEditor.image.removed': function(e, editor, $img) {
+                        var httpRequest = new XMLHttpRequest();
+                        httpRequest.open('POST', "/FroalaApi/DeleteImage", true);
+                        httpRequest.onload = function() {
+                            if (httpRequest.status >= 200 && httpRequest.status < 400) {
+                                // Success!
+                                console.log('image was deleted');
+                            } else {
+                                // We reached our target server, but it returned an error
+                                console.log('image delete problem from target server : ' + httpRequest.status);
+                            }
+                        };
+                        httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+                        httpRequest.send({ src: $img.attr('src') });
+                    },
+                    // Catch image removal from the editor.
+                    'froalaEditor.file.unlink': function(e, editor, link) {
+                        var httpRequest = new XMLHttpRequest();
+                        httpRequest.open('POST', "/FroalaApi/DeleteImage", true);
+                        httpRequest.onload = function() {
+                            if (httpRequest.status >= 200 && httpRequest.status < 400) {
+                                // Success!
+                                console.log('image was deleted');
+                            } else {
+                                // We reached our target server, but it returned an error
+                                console.log('image delete problem from target server : ' + httpRequest.status);
+                            }
+                        };
 
-        $('#edit-resize').froalaEditor({
-            imageUploadURL: '/FroalaApi/UploadImageResize',
-            fileUploadURL: '/FroalaApi/UploadFile',
-            imageManagerLoadURL: '/FroalaApi/LoadImages',
-            imageManagerDeleteURL: "/FroalaApi/DeleteImage",
-            imageManagerDeleteMethod: "POST"
-        })
-        // Catch image removal from the editor.
-        .on('froalaEditor.image.removed', function (e, editor, $img) {
-            $.ajax({
-                // Request method.
-                method: "POST",
-
-                // Request URL.
-                url: "/FroalaApi/DeleteImage",
-
-                // Request params.
-                data: {
-                src: $img.attr('src')
+                        httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+                        httpRequest.send({ src: link.getAttribute('href') });
+                    }
                 }
-            })
-            .done (function (data) {
-                console.log ('image was deleted');
-            })
-            .fail (function (err) {
-                console.log ('image delete problem: ' + JSON.stringify(err));
-            })
-        })
+            });
+    })();
 
-        // Catch image removal from the editor.
-        .on('froalaEditor.file.unlink', function (e, editor, link) {
-            $.ajax({
-                // Request method.
-                method: "POST",
-
-                // Request URL.
-                url: "/FroalaApi/DeleteFile",
-
-                // Request params.
-                data: {
-                src: link.getAttribute('href')
-                }
-            })
-            .done (function (data) {
-                console.log ('file was deleted');
-            })
-            .fail (function (err) {
-                console.log ('file delete problem: ' + JSON.stringify(err));
-            })
-        });
-
-        $('#edit-validation').froalaEditor({
-            imageUploadURL: '/FroalaApi/UploadImageValidation',
-            imageUploadParam: 'myImage',
-            fileUploadURL: '/FroalaApi/UploadFileValidation',
-            fileUploadParam: 'myFile',
-            fileMaxSize: 1024 * 1024 * 50,
-            imageManagerLoadURL: '/FroalaApi/LoadImages',
-            imageManagerDeleteURL: "/FroalaApi/DeleteImage",
-            imageManagerDeleteMethod: "POST"
-        })
-        // Catch image removal from the editor.
-        .on('froalaEditor.image.removed', function (e, editor, $img) {
-            $.ajax({
-                // Request method.
-                method: "POST",
-
-                // Request URL.
-                url: "/FroalaApi/DeleteImage",
-
-                // Request params.
-                data: {
-                src: $img.attr('src')
-                }
-            })
-            .done (function (data) {
-                console.log ('image was deleted');
-            })
-            .fail (function (err) {
-                console.log ('image delete problem: ' + JSON.stringify(err));
-            })
-        })
-        // Catch image removal from the editor.
-        .on('froalaEditor.file.unlink', function (e, editor, link) {
-            $.ajax({
-                // Request method.
-                method: "POST",
-
-                // Request URL.
-                url: "/FroalaApi/DeleteFile",
-
-                // Request params.
-                data: {
-                src: link.getAttribute('href')
-                }
-            })
-            .done (function (data) {
-                console.log ('file was deleted');
-            })
-            .fail (function (err) {
-                console.log ('file delete problem: ' + JSON.stringify(err));
-            })
-        })
-
-        $.get( "/FroalaApi/S3Signature", {})
-        .done(function( data ) {
-            $('#edit-amazon').froalaEditor({
-                imageUploadToS3: data,
-                fileUploadToS3: data,
-                videoUploadToS3: data
-            })
-        });
-    });
-    </script>
+    var httpRequest = new XMLHttpRequest();
+    httpRequest.onreadystatechange = function () {
+        if (httpRequest.readyState === 4) {
+            const data = JSON.parse(httpRequest.responseText);
+            // code
+            const editAmazonInstance = new FroalaEditor('#edit-amazon',
+                {
+                    imageUploadToS3: data,
+                    fileUploadToS3: data,
+                    videoUploadToS3: data
+                });
+        }
+    };
+    httpRequest.open('GET', "/FroalaApi/S3Signature");
+    httpRequest.send();
+</script>
 </body>
 
 </html>
